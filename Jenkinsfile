@@ -94,6 +94,14 @@ pipeline {
           }
       }
 
+      stage("Approval") {
+        steps {
+          timeout(time: 30, unit: 'SECONDS') {
+            input cancel: 'No', message: 'Continue to deploy?', ok: 'Yes,Please'
+          }
+        }
+      }
+
       stage("Deploy Prod") {
 
           agent {
