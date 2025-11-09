@@ -26,9 +26,9 @@ pipeline {
           }
       }
 
-      stage("test") {
+      stage("Test") {
         parallel {
-            stage('unit test') {
+            stage('Unit Test') {
                 agent{
                     docker {
                       image "node:18-alpine"
@@ -74,7 +74,27 @@ pipeline {
         }
       }
 
-      stage("deploy") {
+      stage("Deploy staging") {
+
+          agent {
+              docker {
+                image 'node:18-alpine'
+                reuseNode true
+              }
+          }
+          steps {
+              sh '''
+              npm install netlify-cli@20.1.1
+
+              node_modules/.bin/netlify --version
+              echo "deploying  to netlify site id: $NETLIFY_SITE_ID"
+              node_modules/.bin/netlify status
+              node_modules/.bin/netlify deploy --dir=build
+              '''
+          }
+      }
+
+      stage("Deploy Prod") {
 
           agent {
               docker {
@@ -94,25 +114,7 @@ pipeline {
           }
       }
 
-      stage("deploy staging") {
-
-          agent {
-              docker {
-                image 'node:18-alpine'
-                reuseNode true
-              }
-          }
-          steps {
-              sh '''
-              npm install netlify-cli@20.1.1
-
-              node_modules/.bin/netlify --version
-              echo "deploying  to netlify site id: $NETLIFY_SITE_ID"
-              node_modules/.bin/netlify status
-              node_modules/.bin/netlify deploy --dir=build
-              '''
-          }
-      }
+      
 
       stage('Prod E2E') {
                 agent{
