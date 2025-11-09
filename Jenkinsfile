@@ -4,6 +4,7 @@ pipeline {
   environment {
     NETLIFY_SITE_ID= '9f041764-fdd5-4c51-87fc-d109408cc98e'
     NETLIFY_AUTH_TOKEN= credentials('netlify-token')
+    
   }
   stages{
       stage('Build'){
@@ -91,6 +92,29 @@ pipeline {
               node_modules/.bin/netlify deploy --dir=build --prod
               '''
           }
+      }
+
+      stage('Prod E2E') {
+                agent{
+                    docker {
+                      image "mcr.microsoft.com/playwright:v1.39.0-jammy"
+                      reuseNode true
+
+                    }
+                }
+                environment {
+                  CI_ENVIRONMENT_URL= 'https://friendly-cajeta-680480.netlify.app'
+                }
+                steps{
+                    sh '''             
+                        npx playwright test --reporter=html
+                    '''
+                } 
+                post{
+                  always {
+                      publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright E2E Report', reportTitles: '', useWrapperFileDirectly: true])
+                  }
+                }
       }
   }
 }
