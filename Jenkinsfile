@@ -1,5 +1,10 @@
 pipeline {
   agent any 
+
+  environment {
+    NETLIFY_SITE_ID= '9f041764-fdd5-4c51-87fc-d109408cc98e'
+    NETLIFY_AUTH_TOKEN= credentials('netlify-token')
+  }
   stages{
       stage('Build'){
           agent {
@@ -77,7 +82,11 @@ pipeline {
           steps {
               sh '''
               npm install netlify-cli@20.1.1
-              node_modules/.bin/netflix-cli --version
+
+              node_modules/.bin/netlify --version
+              echo "deploying  to netlify site id: $NETLIFY_SITE_ID"
+              node_modules/.bin/netflix status
+              node_modules/.bin/netflix deploy --dir=build --prod
               '''
           }
       }
