@@ -87,8 +87,8 @@ pipeline {
 
               node_modules/.bin/netlify --version
               echo "deploying  to netlify site id: $NETLIFY_SITE_ID"
-              node_modules/.bin/netflix status
-              node_modules/.bin/netflix deploy --dir=build --prod
+              node_modules/.bin/netlify status
+              node_modules/.bin/netlify deploy --dir=build --prod
               '''
           }
       }
